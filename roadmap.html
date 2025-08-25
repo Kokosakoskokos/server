@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Custom Server Dashboard Roadmap</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f9fafb; padding: 20px; }
+    h1 { text-align: center; color: #222; }
+    .step { background: #fff; margin: 10px 0; padding: 15px;
+            border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    details { margin-top: 10px; }
+    summary { font-weight: bold; cursor: pointer; }
+    label { display: flex; align-items: center; gap: 10px; }
+    pre { background: #eee; padding: 10px; border-radius: 5px; overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <h1>🚀 Build My Own Server Dashboards</h1>
+
+  <!-- Step 1 -->
+  <div class="step">
+    <label><input type="checkbox"> <span>Step 1: Base System Setup</span></label>
+    <details>
+      <summary>Tutorial</summary>
+      <p>Install <b>Debian 12</b> or <b>Ubuntu Server 24.04</b> on your machine.</p>
+      <pre><code># Update system
+sudo apt update && sudo apt upgrade -y
+
+# Install developer tools
+sudo apt install git python3 python3-pip nodejs npm docker.io -y
+</code></pre>
+    </details>
+  </div>
+
+  <!-- Step 2 -->
+  <div class="step">
+    <label><input type="checkbox"> <span>Step 2: Create Backend API</span></label>
+    <details>
+      <summary>Tutorial</summary>
+      <p>Use Python + FastAPI to serve system metrics and actions.</p>
+      <pre><code># Install FastAPI + Uvicorn
+pip3 install fastapi uvicorn psutil
+
+# Example app (backend/main.py)
+from fastapi import FastAPI
+import psutil, subprocess
+
+app = FastAPI()
+
+@app.get("/stats")
+def stats():
+    return {
+        "cpu": psutil.cpu_percent(),
+        "ram": psutil.virtual_memory().percent,
+        "uptime": psutil.boot_time()
+    }
+
+@app.post("/power/on")
+def power_on():
+    subprocess.run(["racadm", "-r", "IDRAC-IP", "-u", "root", "-p", "password", "serveraction", "powerup"])
+    return {"status": "powering on"}
+</code></pre>
+      <p>Run backend: <code>uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000</code></p>
+    </details>
+  </div>
+
+  <!-- Step 3 -->
+  <div class="step">
+    <label><input type="checkbox"> <span>Step 3: Create Frontend Dashboard</span></label>
+    <details>
+      <summary>Tutorial</summary>
+      <p>Use React (or plain HTML/JS) to show system stats and buttons.</p>
+      <pre><code>npx create-react-app dashboard
+cd dashboard
+npm start</code></pre>
+      <p>In React, fetch backend API:</p>
+      <pre><code>useEffect(() => {
+  fetch("http://SERVER-IP:8000/stats")
+    .then(res => res.json())
+    .then(data => setStats(data));
+}, []);
+</code></pre>
+      <p>Add buttons to call <code>/power/on</code>, <code>/power/off</code>, etc.</p>
+    </details>
+  </div>
+
+  <!-- Step 4 -->
+  <div class="step">
+    <label><input type="checkbox"> <span>Step 4: AI Assistant Page</span></label>
+    <details>
+      <summary>Tutorial</summary>
+      <p>Integrate <b>Ollama</b> + <b>OpenWebUI</b> or make your own chat UI in React.</p>
+      <pre><code># Install Ollama
+curl -fsSL https://ollama.ai/install.sh | sh
+
+# Pull a model
+ollama pull llama2</code></pre>
+      <p>Expose AI endpoint in FastAPI, fetch in dashboard, render chat box.</p>
+    </details>
+  </div>
+
+  <!-- Step 5 -->
+  <div class="step">
+    <label><input type="checkbox"> <span>Step 5: User Cloud Storage</span></label>
+    <details>
+      <summary>Tutorial</summary>
+      <p>Option A: Use Nextcloud (easy, full-featured).  
+         Option B: Code your own file manager in the dashboard.</p>
+      <pre><code># Docker Nextcloud
+docker run -d -p 8080:80 \
+  -v /srv/nextcloud:/var/www/html \
+  --name nextcloud nextcloud</code></pre>
+    </details>
+  </div>
+
+  <!-- Step 6 -->
+  <div class="step">
+    <label><input type="checkbox"> <span>Step 6: Smart Plug + iDRAC Control</span></label>
+    <details>
+      <summary>Tutorial</summary>
+      <p>Use backend API to toggle smart plug and server power.</p>
+      <pre><code># Example FastAPI endpoint
+@app.post("/power/on-full")
+def on_full():
+    requests.post("http://SMARTPLUG-IP/on")
+    subprocess.run(["racadm", "-r", "IDRAC-IP", "-u", "root", "-p", "pw", "serveraction", "powerup"])
+    return {"status": "SmartPlug+Server On"}
+</code></pre>
+      <p>On shutdown: call server poweroff → wait → smart plug off.</p>
+    </details>
+  </div>
+
+  <!-- Step 7 -->
+  <div class="step">
+    <label><input type="checkbox"> <span>Step 7: Connect from Anywhere</span></label>
+    <details>
+      <summary>Tutorial</summary>
+      <p>Install WireGuard VPN or use Nginx + SSL reverse proxy.</p>
+      <pre><code>sudo apt install wireguard -y
+</code></pre>
+      <p>This allows you and users to access the dashboard & AI from anywhere securely.</p>
+    </details>
+  </div>
+
+  <!-- Step 8 -->
+  <div class="step">
+    <label><input type="checkbox"> <span>Step 8: User Dashboards (no terminal)</span></label>
+    <details>
+      <summary>Tutorial</summary>
+      <p>Create separate user roles in your backend.</p>
+      <ul>
+        <li>Admin → terminal, power control, full access</li>
+        <li>User → AI page, cloud, server stats only</li>
+      </ul>
+      <p>Use JWT auth in FastAPI, render different React pages per role.</p>
+    </details>
+  </div>
+
+</body>
+</html>
